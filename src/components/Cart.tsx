@@ -8,20 +8,20 @@ import { ScrollArea } from "./ui/scroll-area";
 
 interface CartProps {
   open: boolean;
-  onClose: () => void;
+  onOpenChange: (open: boolean) => void;
 }
 
-const Cart: React.FC<CartProps> = ({ open, onClose }) => {
+const Cart: React.FC<CartProps> = ({ open, onOpenChange }) => {
   const { state, removeItem, updateQuantity, checkout } = useCart();
   const { items, subtotal, shipping, total } = state;
 
   const handleCheckout = async () => {
     await checkout();
-    onClose();
+    onOpenChange(false);
   };
 
   return (
-    <Sheet open={open} onOpenChange={onClose}>
+    <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="w-full sm:max-w-lg">
         <SheetHeader>
           <SheetTitle>Shopping Cart</SheetTitle>
