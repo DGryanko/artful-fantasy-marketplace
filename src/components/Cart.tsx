@@ -1,82 +1,49 @@
+import React from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
-import { Minus, Plus, Trash2 } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
-import { useState } from "react";
-import { toast } from "./ui/use-toast";
+import { Minus, Plus, Trash2 } from "lucide-react";
+import { Separator } from "./ui/separator";
+import { ScrollArea } from "./ui/scroll-area";
 
 interface CartProps {
   open: boolean;
-  onOpenChange: (open: boolean) => void;
+  onClose: () => void;
 }
 
-const Cart = ({ open, onOpenChange }: CartProps) => {
-  const { state, removeItem, updateQuantity } = useCart();
-  const [isCheckingOut, setIsCheckingOut] = useState(false);
-
-  // Calculate shipping cost based on total items
-  const calculateShipping = () => {
-    const baseShipping = 5.99;
-    const itemCount = state.items.reduce((acc, item) => acc + item.quantity, 0);
-    const additionalCost = Math.max(0, itemCount - 1) * 2; // $2 for each additional item
-    return baseShipping + additionalCost;
-  };
-
-  const shippingCost = calculateShipping();
-  const subtotal = state.total;
-  const total = subtotal + shippingCost;
+const Cart: React.FC<CartProps> = ({ open, onClose }) => {
+  const { state, removeItem, updateQuantity, checkout } = useCart();
+  const { items, subtotal, shipping, total } = state;
 
   const handleCheckout = async () => {
-    setIsCheckingOut(true);
-    try {
-      // For now, just show a success message
-      // This would be replaced with actual checkout logic later
-      toast({
-        title: "Redirecting to checkout",
-        description: "You will be redirected to complete your purchase.",
-      });
-      // Simulate redirect delay
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      console.log("Proceeding to checkout with items:", state.items);
-    } catch (error) {
-      toast({
-        title: "Checkout Error",
-        description: "There was an error processing your checkout.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsCheckingOut(false);
-    }
+    await checkout();
+    onClose();
   };
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
+    <Sheet open={open} onOpenChange={onClose}>
       <SheetContent className="w-full sm:max-w-lg">
         <SheetHeader>
-          <SheetTitle className="font-cinzel text-2xl">Shopping Cart</SheetTitle>
+          <SheetTitle>Shopping Cart</SheetTitle>
         </SheetHeader>
         
-        {state.items.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full">
-            <p className="text-muted-foreground">Your cart is empty</p>
-          </div>
-        ) : (
-          <>
-            <ScrollArea className="flex-1 my-4">
-              <div className="space-y-4">
-                {state.items.map((item) => (
-                  <div
-                    key={item.id}
-                    className="flex items-center space-x-4 border-b border-accent/20 pb-4"
-                  >
+        <div className="flex flex-col h-full">
+          <ScrollArea className="flex-1 -mx-6 px-6">
+            {items.length === 0 ? (
+              <p className="text-center text-muted-foreground py-8">
+                Your cart is empty
+              </p>
+            ) : (
+              <div className="space-y-4 pt-4">
+                {items.map((item) => (
+                  <div key={item.id} className="flex items-center space-x-4">
                     <img
                       src={item.image}
                       alt={item.name}
-                      className="h-20 w-20 object-cover rounded"
+                      className="h-16 w-16 rounded-md object-cover"
                     />
                     <div className="flex-1 space-y-1">
-                      <h3 className="font-cinzel">{item.name}</h3>
+                      <h3 className="font-medium">{item.name}</h3>
                       <p className="text-sm text-muted-foreground">
                         ${item.price.toFixed(2)}
                       </p>
@@ -86,7 +53,6 @@ const Cart = ({ open, onOpenChange }: CartProps) => {
                           size="icon"
                           className="h-8 w-8"
                           onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                          disabled={item.quantity <= 1}
                         >
                           <Minus className="h-4 w-4" />
                         </Button>
@@ -104,7 +70,6 @@ const Cart = ({ open, onOpenChange }: CartProps) => {
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="text-destructive"
                       onClick={() => removeItem(item.id)}
                     >
                       <Trash2 className="h-4 w-4" />
@@ -112,34 +77,38 @@ const Cart = ({ open, onOpenChange }: CartProps) => {
                   </div>
                 ))}
               </div>
-            </ScrollArea>
-            
-            <div className="space-y-4">
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span>Subtotal</span>
-                  <span>${subtotal.toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Shipping</span>
-                  <span>${shippingCost.toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between font-bold">
-                  <span>Total</span>
-                  <span>${total.toFixed(2)}</span>
-                </div>
+            )}
+          </ScrollArea>
+
+          <div className="space-y-4 pt-6">
+            <Separator />
+            <div className="space-y-1.5">
+              <div className="flex justify-between">
+                <span className="text-sm">Subtotal</span>
+                <span className="text-sm font-medium">
+                  ${subtotal.toFixed(2)}
+                </span>
               </div>
-              
-              <Button 
-                className="w-full bg-accent hover:bg-accent/90" 
-                onClick={handleCheckout}
-                disabled={isCheckingOut}
-              >
-                {isCheckingOut ? "Processing..." : "Proceed to Checkout"}
-              </Button>
+              <div className="flex justify-between">
+                <span className="text-sm">Shipping</span>
+                <span className="text-sm font-medium">
+                  {shipping === 0 ? "Free" : `$${shipping.toFixed(2)}`}
+                </span>
+              </div>
+              <div className="flex justify-between font-medium">
+                <span>Total</span>
+                <span>${total.toFixed(2)}</span>
+              </div>
             </div>
-          </>
-        )}
+            <Button 
+              className="w-full" 
+              disabled={items.length === 0} 
+              onClick={handleCheckout}
+            >
+              Checkout
+            </Button>
+          </div>
+        </div>
       </SheetContent>
     </Sheet>
   );
