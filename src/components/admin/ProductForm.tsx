@@ -136,7 +136,7 @@ const ProductForm = ({ product, onClose, onSuccess }: ProductFormProps) => {
                   {...field}
                   className="w-full p-2 border rounded"
                 >
-                  <option value="">Select a category</option>
+                  <option value="none">Select a category</option>
                   {categories?.map((category) => (
                     <option key={category.id} value={category.id}>
                       {category.name}
