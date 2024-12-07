@@ -7,6 +7,7 @@ import { CartProvider } from "./contexts/CartContext";
 import Navbar from "./components/Navbar";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
+import Admin from "./pages/Admin";
 import AdminRoute from "./components/AdminRoute";
 
 const queryClient = new QueryClient();
@@ -22,12 +23,11 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
-            {/* Protected admin routes will go here */}
             <Route
               path="/admin/*"
               element={
                 <AdminRoute>
-                  <div>Admin Panel (Coming Soon)</div>
+                  <Admin />
                 </AdminRoute>
               }
             />
