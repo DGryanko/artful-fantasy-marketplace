@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import Hero from "@/components/Hero";
 import ProductCard from "@/components/ProductCard";
@@ -26,6 +26,7 @@ type SortOption = "name-asc" | "name-desc" | "price-asc" | "price-desc";
 const Index = () => {
   const [sortBy, setSortBy] = useState<SortOption>("name-asc");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const queryClient = useQueryClient();
 
   const { data: products, isLoading, error } = useQuery({
     queryKey: ['products'],
@@ -64,7 +65,6 @@ const Index = () => {
         { event: '*', schema: 'public', table: 'products' },
         (payload) => {
           console.log('Real-time update:', payload);
-          // The queryClient will automatically refetch the products
           queryClient.invalidateQueries({ queryKey: ['products'] });
         }
       )
@@ -73,7 +73,7 @@ const Index = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, []);
+  }, [queryClient]);
 
   const sortProducts = (products: Product[]) => {
     const sorted = [...products];
