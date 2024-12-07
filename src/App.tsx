@@ -6,6 +6,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { CartProvider } from "./contexts/CartContext";
 import Navbar from "./components/Navbar";
 import Index from "./pages/Index";
+import Login from "./pages/Login";
+import AdminRoute from "./components/AdminRoute";
 
 const queryClient = new QueryClient();
 
@@ -19,6 +21,16 @@ const App = () => (
           <Navbar />
           <Routes>
             <Route path="/" element={<Index />} />
+            <Route path="/login" element={<Login />} />
+            {/* Protected admin routes will go here */}
+            <Route
+              path="/admin/*"
+              element={
+                <AdminRoute>
+                  <div>Admin Panel (Coming Soon)</div>
+                </AdminRoute>
+              }
+            />
           </Routes>
         </BrowserRouter>
       </CartProvider>

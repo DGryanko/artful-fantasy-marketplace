@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ShoppingCart, Menu } from "lucide-react";
+import { ShoppingCart, Menu, LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useState } from "react";
@@ -40,6 +40,15 @@ const Navbar = () => {
           </div>
 
           <div className="flex items-center space-x-4">
+            <Link to="/login">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="text-primary-foreground hover:text-accent"
+              >
+                <LogIn className="h-5 w-5" />
+              </Button>
+            </Link>
             <Button
               variant="ghost"
               size="icon"
