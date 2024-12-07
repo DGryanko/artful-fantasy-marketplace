@@ -36,7 +36,7 @@ interface Order {
 }
 
 const OrderManagement = () => {
-  const [statusFilter, setStatusFilter] = useState<string>("");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
 
   const { data: orders, refetch } = useQuery({
     queryKey: ["admin-orders"],
@@ -59,9 +59,9 @@ const OrderManagement = () => {
     },
   });
 
-  const filteredOrders = statusFilter
-    ? orders?.filter((order) => order.status === statusFilter)
-    : orders;
+  const filteredOrders = statusFilter === "all"
+    ? orders
+    : orders?.filter((order) => order.status === statusFilter);
 
   const updateOrderStatus = async (orderId: string, newStatus: string) => {
     const { error } = await supabase
@@ -89,7 +89,7 @@ const OrderManagement = () => {
             <SelectValue placeholder="Filter by status" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">All Orders</SelectItem>
+            <SelectItem value="all">All Orders</SelectItem>
             <SelectItem value="pending">Pending</SelectItem>
             <SelectItem value="processing">Processing</SelectItem>
             <SelectItem value="completed">Completed</SelectItem>
